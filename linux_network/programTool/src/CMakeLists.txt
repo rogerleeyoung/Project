@@ -1,0 +1,10 @@
+SET(SOURCE_FILES main.cpp)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/resource)
+ADD_EXECUTABLE(mainfunc ${SOURCE_FILES})   
+TARGET_LINK_LIBRARIES(mainfunc  engine workManager pthread unit threadpool netUnit testUnit)
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
+
+
+
