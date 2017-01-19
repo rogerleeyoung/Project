@@ -1,0 +1,16 @@
+
+
+SET(SOURCE_FILES CondVar.cpp Mutex.cpp Task.cpp ThreadPool.cpp)             # 设置变量，表示所有的源文件
+
+INCLUDE_DIRECTORIES(/usr/local/include ${PROJET_SOURCE_DIR}/threadpool)               # 相关头文件的目录
+
+LINK_DIRECTORIES(/usr/local/lib)            # 相关库文件的目录
+
+ADD_LIBRARY(threadpool SHARED  ${SOURCE_FILES})         # 生成静态链接库libassociation.a
+
+TARGET_LINK_LIBRARIES(threadpool pthread)            # 依赖的库文件
+
+SET_TARGET_PROPERTIES(threadpool PROPERTIES RUNTIME_OUTPUT_DIRECTORY  ${PROJECT_SOURCE_DIR}/lib)    
+
+
+
