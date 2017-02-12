@@ -13,7 +13,7 @@
 #define IPADDRESS   "127.0.0.1"
 #define PORT        6666
 #define MAXSIZE     1024
-#define LISTENQ     5
+#define LISTENQ     5//最大监听的事件数
 #define FDSIZE      1000
 #define EPOLLEVENTS 100
 
@@ -40,23 +40,25 @@ void delete_event(int epollfd,int fd,int state);
 int main(int argc,char *argv[]){
     int  listenfd;
     listenfd = socket_bind(IPADDRESS,PORT);
-    listen(listenfd,LISTENQ);
+    listen(listenfd,LISTENQ);//监听socket
     do_epoll(listenfd);
     return 0;
 }
 
+/*创建套接字并进行绑定*/
 int socket_bind(const char* ip,int port){
     int  listenfd;
     struct sockaddr_in servaddr;
-    listenfd = socket(AF_INET,SOCK_STREAM,0);
+    listenfd = socket(AF_INET,SOCK_STREAM,0);//创建socket
     if (listenfd == -1){
-        perror("socket error:");
+        perror("socket error:");//抛出最近一次系统错误信息
         exit(1);
     }
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     inet_pton(AF_INET,ip,&servaddr.sin_addr);
     servaddr.sin_port = htons(port);
+    //命名/绑定socket
     if (bind(listenfd,(struct sockaddr*)&servaddr,sizeof(servaddr)) == -1){
         perror("bind error: ");
         exit(1);
@@ -89,6 +91,10 @@ void handle_events(int epollfd,struct epoll_event *events,int num,int listenfd,c
     for (i = 0;i < num;i++){
         fd = events[i].data.fd;
         /*根据描述符的类型和事件类型进行处理*/
+        /*如果描述符是监听描述符且事件可读时，就可以接收新的客户端请求；
+          如果事件仅为可读，则读取老客户端发过来的包；
+          如果事件为可写，则发包。
+         */
         if ((fd == listenfd) &&(events[i].events & EPOLLIN))
             handle_accpet(epollfd,listenfd);
         else if (events[i].events & EPOLLIN)
@@ -102,7 +108,7 @@ void handle_accpet(int epollfd,int listenfd){
     int clifd;
     struct sockaddr_in cliaddr;
     socklen_t  cliaddrlen;
-    clifd = accept(listenfd,(struct sockaddr*)&cliaddr,&cliaddrlen);
+    clifd = accept(listenfd,(struct sockaddr*)&cliaddr,&cliaddrlen);//接受连接
     if (clifd == -1)
         perror("accpet error:");
     else{
@@ -147,7 +153,7 @@ void do_write(int epollfd,int fd,char *buf){
 
 void add_event(int epollfd,int fd,int state){
     struct epoll_event ev;
-    ev.events = state;
+    ev.events = state|EPOLLET;
     ev.data.fd = fd;
     epoll_ctl(epollfd,EPOLL_CTL_ADD,fd,&ev);
 }
