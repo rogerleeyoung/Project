@@ -2,9 +2,13 @@
 using namespace std;
 class Base{
 public:
+    Base();
     static int var;
 };
-int Base::var=10;
+Base::Base()
+{
+    var=10;
+}
 class Derived:public Base{
 };
 int main(){
